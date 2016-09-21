@@ -113,8 +113,8 @@ resource "azurerm_virtual_machine" "prd_weblt01" {
     }
 
     storage_os_disk {
-        name = "myosdisk1"
-        vhd_uri = "${azurerm_storage_account.prd_swebacnt.primary_blob_endpoint}${azurerm_storage_container.prd_swebcont.name}/myosdisk1.vhd"
+        name = "myosdisk11"
+        vhd_uri = "${azurerm_storage_account.prd_swebacnt.primary_blob_endpoint}${azurerm_storage_container.prd_swebcont.name}/myosdisk11.vhd"
         caching = "ReadWrite"
         create_option = "FromImage"
     }
