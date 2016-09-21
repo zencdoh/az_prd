@@ -48,8 +48,8 @@ resource "azurerm_dns_a_record" "prd_azurelt_a_web_pub" {
    records = ["${azurerm_public_ip.prd_ltweb01pub.ip_address}"]
 }
 
-resource "azurerm_public_ip" "prd_ltweb01pub" {
-    name = "prd_ltweb01pub"
+resource "azurerm_public_ip" "prdltweb01pub" {
+    name = "prdltweb01pub"
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
     public_ip_address_allocation = "static"
@@ -71,7 +71,7 @@ resource "azurerm_network_interface" "prd_ltwebpudinter" {
 }
 
 resource "azurerm_storage_account" "prd_swebacnt" {
-    name = "prd_swebacnt"
+    name = "prdswebacnt"
     resource_group_name = "${azurerm_resource_group.prd.name}"
     location = "westus"
     account_type = "Standard_LRS"
