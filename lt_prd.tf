@@ -15,7 +15,7 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "prd" {
-    name     = "${var.resource_group}"
+    name     = "prd"
     location = "West US"
 }
 
