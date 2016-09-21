@@ -53,7 +53,7 @@ resource "azurerm_public_ip" "prdltweb01pub" {
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
     public_ip_address_allocation = "static"
-    domain_name_label = "prd_webpub"
+    domain_name_label = "prdwebpub"
 }
 
 resource "azurerm_network_interface" "prd_ltwebpudinter" {
