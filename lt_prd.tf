@@ -45,7 +45,7 @@ resource "azurerm_dns_a_record" "prd_azurelt_a_web_pub" {
    zone_name = "${azurerm_dns_zone.prd_azurelt.name}"
    resource_group_name = "${azurerm_resource_group.prd.name}"
    ttl = "300"
-   records = ["${azurerm_public_ip.prd_ltweb01pub.ip_address}"]
+   records = ["${azurerm_public_ip.prdltweb01pub.ip_address}"]
 }
 
 resource "azurerm_public_ip" "prdltweb01pub" {
@@ -66,7 +66,7 @@ resource "azurerm_network_interface" "prd_ltwebpudinter" {
         name = "prd_ltconfiguration1"
         subnet_id = "${azurerm_subnet.prd_public.id}"
         private_ip_address_allocation = "dynamic"
-        public_ip_address_id = "${azurerm_public_ip.prd_ltweb01pub.id}"
+        public_ip_address_id = "${azurerm_public_ip.prdltweb01pub.id}"
     }
 }
 
@@ -236,7 +236,7 @@ resource "azurerm_network_security_rule" "Winrm-out" {
 }
 
 output "Application URLs: " {
-        value = "${azurerm_public_ip.prd_ltweb01pub.ip_address}"
+        value = "${azurerm_public_ip.prdltweb01pub.ip_address}"
 }
 
 output "DNS entry" {
