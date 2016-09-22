@@ -21,88 +21,85 @@ resource "azurerm_resource_group" "prd" {
 }
 
 # Create a virtual network in the web_servers resource group
-resource "azurerm_virtual_network" "prd_ltNetwork" {
-  name                = "prd_ltNetwork"
+resource "azurerm_virtual_network" "prdNetwork" {
+  name                = "prdNetwork"
   address_space       = ["12.0.0.0/16"]
   location            = "West US"
   resource_group_name = "${azurerm_resource_group.prd.name}"
 }
 
-resource "azurerm_subnet" "prd_public" {
-    name = "prd_public"
+resource "azurerm_subnet" "prdpublic" {
+    name = "prdpublic"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    virtual_network_name = "${azurerm_virtual_network.prd_ltNetwork.name}"
+    virtual_network_name = "${azurerm_virtual_network.prdNetwork.name}"
     address_prefix = "12.0.1.0/24"
-    network_security_group_id = "${azurerm_network_security_group.prd_ltwebNSG.id}"
+    network_security_group_id = "${azurerm_network_security_group.prdwebNSG.id}"
 }
 
-resource "azurerm_dns_zone" "prd_azurelt" {
+resource "azurerm_dns_zone" "prdazure" {
    name = "ad.zencloud.com"
    resource_group_name = "${azurerm_resource_group.prd.name}"
 }
 
-resource "azurerm_dns_a_record" "prd_azurelt_a_web_pub" {
-   name = "prd_web_pub"
-   zone_name = "${azurerm_dns_zone.prd_azurelt.name}"
+resource "azurerm_dns_a_record" "prdazure_a_web_pub" {
+   name = "prdweb_pub"
+   zone_name = "${azurerm_dns_zone.prdazure.name}"
    resource_group_name = "${azurerm_resource_group.prd.name}"
    ttl = "300"
-   records = ["${azurerm_public_ip.prdltweb01pub.ip_address}"]
+   records = ["${azurerm_public_ip.prdweb01pub.ip_address}"]
 }
 
-resource "azurerm_public_ip" "prdltweb01pub" {
-    name = "prdltweb01pub"
+resource "azurerm_public_ip" "prdweb01pub" {
+    name = "prdweb01pub"
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
     public_ip_address_allocation = "static"
     domain_name_label = "prdwebpub"
 }
 
-resource "azurerm_network_interface" "prd_ltwebpudinter" {
-    name = "prd_ltwebpudinter"
+resource "azurerm_network_interface" "prdwebpudinter" {
+    name = "prdwebpudinter"
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_id = "${azurerm_network_security_group.prd_ltwebNSG.id}"
+    network_security_group_id = "${azurerm_network_security_group.prdwebNSG.id}"
 
     ip_configuration {
-        name = "prd_ltconfiguration1"
-        subnet_id = "${azurerm_subnet.prd_public.id}"
+        name = "prdconfiguration1"
+        subnet_id = "${azurerm_subnet.prdpublic.id}"
         private_ip_address_allocation = "dynamic"
-        public_ip_address_id = "${azurerm_public_ip.prdltweb01pub.id}"
+        public_ip_address_id = "${azurerm_public_ip.prdweb01pub.id}"
     }
 }
 
-resource "azurerm_storage_account" "prd_swebacnt" {
+resource "azurerm_storage_account" "prdswebacnt" {
     name = "prdswebacnt"
     resource_group_name = "${azurerm_resource_group.prd.name}"
     location = "westus"
     account_type = "Standard_LRS"
-    tags {
-        environment = "lt"
-    }
 }
 
-resource "azurerm_storage_container" "prd_swebcont" {
-    name = "prd_swebcont"
+resource "azurerm_storage_container" "prdswebcont" {
+    name = "prdswebcont"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    storage_account_name = "${azurerm_storage_account.prd_swebacnt.name}"
+    storage_account_name = "${azurerm_storage_account.prdswebacnt.name}"
     container_access_type = "private"
 }
 
-resource "azurerm_storage_blob" "prd_swebblob" {
-    name = "prd_swebblob.vhd"
+resource "azurerm_storage_blob" "prdswebblob" {
+    name = "prdswebblob.vhd"
 
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    storage_account_name = "${azurerm_storage_account.prd_swebacnt.name}"
-    storage_container_name = "${azurerm_storage_container.prd_swebcont.name}"
+    storage_account_name = "${azurerm_storage_account.prdswebacnt.name}"
+    storage_container_name = "${azurerm_storage_container.prdswebcont.name}"
     type = "page"
     size = 5120
 }
 
-resource "azurerm_virtual_machine" "prd_weblt01" {
-    name = "prd_weblt01"
+resource "azurerm_virtual_machine" "prdweb01" {
+    name = "prdweb01"
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_interface_ids = ["${azurerm_network_interface.prd_ltwebpudinter.id}"]
+    network_interface_ids = ["${azurerm_network_interface.prdwebpudinter.id}"]
     vm_size = "Standard_A0"
 
 
@@ -115,13 +112,13 @@ resource "azurerm_virtual_machine" "prd_weblt01" {
 
     storage_os_disk {
         name = "myosdisk11"
-        vhd_uri = "${azurerm_storage_account.prd_swebacnt.primary_blob_endpoint}${azurerm_storage_container.prd_swebcont.name}/myosdisk11.vhd"
+        vhd_uri = "${azurerm_storage_account.prdswebacnt.primary_blob_endpoint}${azurerm_storage_container.prdswebcont.name}/myosdisk11.vhd"
         caching = "ReadWrite"
         create_option = "FromImage"
     }
 
     os_profile {
-        computer_name = "weblt01"
+        computer_name = "web01"
         admin_username = "zenadmin"
         admin_password = "Redhat#12345"
     }
@@ -132,8 +129,8 @@ resource "azurerm_virtual_machine" "prd_weblt01" {
     }
 }
 
-resource "azurerm_network_security_group" "prd_ltwebNSG" {
-    name = "prd_ltwebNSG"
+resource "azurerm_network_security_group" "prdwebNSG" {
+    name = "prdwebNSG"
     location = "West US"
     resource_group_name = "${azurerm_resource_group.prd.name}"
 }
@@ -149,7 +146,7 @@ resource "azurerm_network_security_rule" "HTTP" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "HTTPS" {
@@ -163,7 +160,7 @@ resource "azurerm_network_security_rule" "HTTPS" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "RDP-web" {
@@ -177,7 +174,7 @@ resource "azurerm_network_security_rule" "RDP-web" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "Winrm" {
@@ -191,7 +188,7 @@ resource "azurerm_network_security_rule" "Winrm" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "HTTP-out" {
@@ -205,7 +202,7 @@ resource "azurerm_network_security_rule" "HTTP-out" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "HTTPS-out" {
@@ -219,7 +216,7 @@ resource "azurerm_network_security_rule" "HTTPS-out" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 resource "azurerm_network_security_rule" "Winrm-out" {
@@ -233,11 +230,11 @@ resource "azurerm_network_security_rule" "Winrm-out" {
         source_address_prefix = "*"
         destination_address_prefix = "*"
     resource_group_name = "${azurerm_resource_group.prd.name}"
-    network_security_group_name = "${azurerm_network_security_group.prd_ltwebNSG.name}"
+    network_security_group_name = "${azurerm_network_security_group.prdwebNSG.name}"
 }
 
 output "Application URLs: " {
-        value = "${azurerm_public_ip.prdltweb01pub.ip_address}"
+        value = "${azurerm_public_ip.prdweb01pub.ip_address}"
 }
 
 output "DNS entry" {
