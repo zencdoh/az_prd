@@ -111,14 +111,14 @@ resource "azurerm_virtual_machine" "prdweb01" {
     }
 
     storage_os_disk {
-        name = "myosdisk11"
-        vhd_uri = "${azurerm_storage_account.prdswebacnt.primary_blob_endpoint}${azurerm_storage_container.prdswebcont.name}/myosdisk11.vhd"
+        name = "myosdisk01"
+        vhd_uri = "${azurerm_storage_account.prdswebacnt.primary_blob_endpoint}${azurerm_storage_container.prdswebcont.name}/myosdisk01.vhd"
         caching = "ReadWrite"
         create_option = "FromImage"
     }
 
     os_profile {
-        computer_name = "web01"
+        computer_name = "prdweb01"
         admin_username = "zenadmin"
         admin_password = "Redhat#12345"
     }
