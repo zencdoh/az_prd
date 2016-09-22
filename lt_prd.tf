@@ -4,6 +4,7 @@ variable "client_secret" {}
 variable "tenant_id" {}
 
 #variable "resource_group" {}
+variable "resource_group" {}
 
 # Configure the Azure Resource Manager Provider
 provider "azurerm" {
@@ -15,7 +16,7 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "prd" {
-    name     = "prd"
+    name     = "${var.resource_group}"
     location = "West US"
 }
 
